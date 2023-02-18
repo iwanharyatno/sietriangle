@@ -12,9 +12,17 @@
         margin-top: 2rem;
       }
 
+      a {
+        text-decoration: none;
+        color: #0085ff;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
       #displayCanvas {
         display: block;
-        margin: 2rem auto;
+        margin: 1rem auto;
         border: 1px solid #d3d3d3;
       }
 
@@ -41,6 +49,10 @@
         justify-content: space-between;
         align-items: center;
         margin: 0.5rem 0;
+      }
+
+      footer {
+        text-align: center;
       }
     </style>
 
@@ -181,7 +193,11 @@
         <button id="saveAsImageButton">Save as Image</button>
       </div>
     </div>
-    <canvas width="400" height="400" id="displayCanvas"></canvass>
+    <canvas width="400" height="400" id="displayCanvas"></canvas>
+
+    <footer>
+      Made by <a href="https://github.com/iwanharyatno">Iwan Haryatno</a>
+    </footer>
 
     <script>
       const canvas = document.getElementById('displayCanvas');
