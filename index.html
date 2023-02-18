@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sierpinski Triangle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      html {
+         font-family: Arial, sans-serif;
+      }
+
+      body {
+        margin-top: 2rem;
+      }
+
+      #displayCanvas {
+        display: block;
+        margin: 2rem auto;
+        border: 1px solid #d3d3d3;
+      }
+
+      #drawingProgressElement {
+        width: 100%;
+      }
+
+      #saveAsImageButton {
+        margin-left: auto;
+      }
+
+      h1 {
+        font-weight: 300;
+        font-size: 1.5rem;
+        text-align: center;
+      }
+
+      .controls {
+        max-width: 25rem;
+        margin: 2rem auto;
+      }
+      .control {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0.5rem 0;
+      }
+    </style>
+
+    <script>
+      function Point(x, y) {
+        this.x = x;
+        this.y = y;
+
+        this.distanceTo = function(anotherPoint) {
+          const dx = Math.abs(anotherPoint.x - this.x);
+          const dy = Math.abs(anotherPoint.y - this.y);
+
+          const distance = Math.sqrt(dx*dx + dy*dy);
+          return distance;
+        }
+
+        this.normalize = function() {
+          const len = Math.sqrt(x*x + y*y);
+          
+          const nX = this.x / len;
+          const nY = this.y / len;
+
+          return new Point(nX, nY);
+        }
+
+        this.add = function(anotherPoint) {
+          this.x += anotherPoint.x;
+          this.y += anotherPoint.y;
+        }
+
+        this.directionTo = function(anotherPoint) {
+          const dx = anotherPoint.x - this.x;
+          const dy = anotherPoint.y - this.y;
+
+          return new Point(dx, dy).normalize();
+        }
+
+        this.multiplyScalar = function(c) {
+          this.x *= c;
+          this.y *= c;
+        }
+
+        this.clone = function() {
+          return new Point(this.x, this.y);
+        }
+      }
+
+      function randomInt(min, max) {
+        return Math.round(Math.random() * (max - min) + min);
+      }
+
+      function App(canvasWidth, canvasHeight, context, pointWidth=2) {
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
+
+        this.onBeforeDraw = null;
+        this.onDrawing = null;
+        this.onAfterDraw = null;
+
+        this.ctx = context;
+
+        const points = [
+          new Point(canvasWidth - 5, canvasHeight - 5),
+          new Point(0, canvasHeight - 5),
+          new Point(canvasWidth / 2, 0),
+        ];
+        let lastPoint = new Point(150, 150);
+
+        this.ctx.fillRect(lastPoint.x, lastPoint.y, pointWidth, pointWidth);
+
+        this.init = () => {
+          for (const point of points) {
+            this.ctx.fillRect(point.x, point.y, pointWidth, pointWidth);
+          }
+        }
+
+        let lastTimeout;
+
+        const drawPoints = (limit, interval=30, currIteration=1) => {
+          const randomCornerPoint = points[randomInt(0, 2)];
+          const distance = lastPoint.distanceTo(randomCornerPoint);
+          const newPoint = lastPoint.clone().directionTo(randomCornerPoint);
+          newPoint.multiplyScalar(distance / 2);
+          newPoint.add(lastPoint);
+
+          if (this.onDrawing) {
+            this.onDrawing(limit, currIteration);
+          }
+
+          lastPoint = newPoint;
+
+          this.ctx.fillRect(lastPoint.x, lastPoint.y, pointWidth, pointWidth);
+
+          if (currIteration != limit) {
+            lastTimeout = setTimeout(
+              () => drawPoints(limit, interval, currIteration + 1),
+              interval
+            );
+          } else {
+            if (this.onAfterDraw) this.onAfterDraw(limit, interval, currIteration);
+          }
+        }
+
+        this.iterate = (count, interval) => {
+          clearTimeout(lastTimeout);
+
+          this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+          this.ctx.fillStyle = "#ffffff";
+          this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+          this.ctx.fillStyle = "#000000";
+          this.init();
+          if (this.onBeforeDraw) this.onBeforeDraw(count);
+          drawPoints(count, interval);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1 class="title">Sierpinski Triangle with DOTS</h1>
+    <div class="controls">
+      <div class="control">
+        <label>Iterations</label>
+        <input type="number" id="numsIteration" value="100">
+      </div>
+      <div class="control">
+        <label>Interval per dots (ms)</label>
+        <input type="number" id="intervalPerDots" value="50">
+      </div>
+      <div class="control">
+        <label>Drawing Progress</label>
+        <span id="drawingProgressField"></span>
+      </div>
+      <div class="control">
+        <progress max="100" value="1" id="drawingProgressElement"></progress>
+      </div>
+      <div class="control">
+        <button id="saveAsImageButton">Save as Image</button>
+      </div>
+    </div>
+    <canvas width="400" height="400" id="displayCanvas"></canvass>
+
+    <script>
+      const canvas = document.getElementById('displayCanvas');
+      const renderingContext = canvas.getContext('2d');
+
+      const numsIteration = document.getElementById('numsIteration');
+      const intervalPerDots = document.getElementById('intervalPerDots');
+      const drawingProgressField = document.getElementById('drawingProgressField');
+      const drawingProgressElement = document.getElementById('drawingProgressElement');
+      const saveAsImageButton = document.getElementById('saveAsImageButton');
+
+      const app = new App(canvas.width, canvas.height, renderingContext);
+      app.drawingProgressField = drawingProgressField;
+      app.drawingProgressElement = drawingProgressElement;
+      app.init();
+
+      app.onBeforeDraw = function() {
+        saveAsImageButton.disabled = true;
+      }
+      app.onDrawing = function(limit, currIteration) {
+        const percentages = Math.round(currIteration * 100 / limit);
+
+        this.drawingProgressElement.value = currIteration;
+        this.drawingProgressElement.max = limit;
+
+        this.drawingProgressField.innerText = `${currIteration}/${limit} (${percentages}%)`;
+      }
+      app.onAfterDraw = function() {
+        saveAsImageButton.disabled = false;
+      }
+
+      app.iterate(numsIteration.value, intervalPerDots.value);
+      numsIteration.onchange = function() {
+        app.iterate(this.value, intervalPerDots.value);
+      }
+      intervalPerDots.onchange = function() {
+        app.iterate(numsIteration.value, this.value);
+      }
+
+      saveAsImageButton.onclick = function() {
+        const type = 'image/jpeg';
+        const a = document.createElement('a');
+        a.download = 'sierpinski triangle.' + type.split('/')[1];
+        a.href = canvas.toDataURL(type).replace(type, 'image/octet-stream');
+
+        a.click();
+      }
+    </script>
+  </body>
+</html>
