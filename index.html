@@ -104,7 +104,20 @@
         return Math.round(Math.random() * (max - min) + min);
       }
 
-      function App(canvasWidth, canvasHeight, context, pointWidth=2) {
+      function slideTriangle(array) {
+        const result = [...array];
+
+        const tmp0 = result[0];
+        const tmp1 = result[1];
+
+        result[0] = result[2];
+        result[1] = tmp0;
+        result[2] = tmp1;
+
+        return result;
+      }
+
+      function App(canvasWidth, canvasHeight, context, pointWidth=1) {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
 
@@ -114,7 +127,7 @@
 
         this.ctx = context;
 
-        const points = [
+        let points = [
           new Point(canvasWidth - 5, canvasHeight - 5),
           new Point(0, canvasHeight - 5),
           new Point(canvasWidth / 2, 0),
@@ -141,6 +154,8 @@
           if (this.onDrawing) {
             this.onDrawing(limit, currIteration);
           }
+
+          if (currIteration % 4 === 0) points = slideTriangle(points);
 
           lastPoint = newPoint;
 
@@ -176,11 +191,11 @@
     <div class="controls">
       <div class="control">
         <label>Iterations</label>
-        <input type="number" id="numsIteration" value="100">
+        <input type="number" id="numsIteration" value="5000">
       </div>
       <div class="control">
         <label>Interval per dots (ms)</label>
-        <input type="number" id="intervalPerDots" value="50">
+        <input type="number" id="intervalPerDots" value="1">
       </div>
       <div class="control">
         <label>Drawing Progress</label>
@@ -218,7 +233,7 @@
         saveAsImageButton.disabled = true;
       }
       app.onDrawing = function(limit, currIteration) {
-        const percentages = Math.round(currIteration * 100 / limit);
+        const percentages = Math.floor(currIteration * 100 / limit);
 
         this.drawingProgressElement.value = currIteration;
         this.drawingProgressElement.max = limit;
