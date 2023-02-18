@@ -255,7 +255,7 @@
       saveAsImageButton.onclick = function() {
         const type = 'image/jpeg';
         const a = document.createElement('a');
-        a.download = 'sierpinski triangle.' + type.split('/')[1];
+        a.download = `sierpinski triangle ${numsIteration.value}it.${type.split('/')[1]}`;
         a.href = canvas.toDataURL(type).replace(type, 'image/octet-stream');
 
         a.click();
