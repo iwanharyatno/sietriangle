@@ -8,28 +8,32 @@
     <script src="./scripts/libs.js"></script>
   </head>
   <body>
-    <h1 class="title"><a href="https://en.m.wikipedia.org/wiki/Sierpi%C5%84ski_triangle" target="_blank" rel="norefferer">Sierpi&#324;ski Triangle</a> with DOTS</h1>
-    <div class="controls">
-      <div class="control">
-        <label>Iterations</label>
-        <input type="number" id="numsIteration" value="25000">
+    <main>
+      <h1 class="title"><a href="https://en.m.wikipedia.org/wiki/Sierpi%C5%84ski_triangle" target="_blank" rel="norefferer">Sierpi&#324;ski Triangle</a> with DOTS</h1>
+      <div class="controls">
+        <div class="control">
+          <label>Iterations</label>
+          <input type="number" id="numsIteration" value="25000">
+        </div>
+        <div class="control">
+          <label>Interval per dots (ms)</label>
+          <input type="number" id="intervalPerDots" value="1">
+        </div>
+        <div class="control">
+          <label>Drawing Progress</label>
+          <span id="drawingProgressField"></span>
+        </div>
+        <div class="control">
+          <progress max="100" value="1" id="drawingProgressElement"></progress>
+        </div>
+        <div class="control">
+          <button id="saveAsImageButton">Save as Image</button>
+        </div>
       </div>
-      <div class="control">
-        <label>Interval per dots (ms)</label>
-        <input type="number" id="intervalPerDots" value="1">
+      <div id="canvasContainer">
+        <canvas width="400" height="400" id="displayCanvas"></canvas>
       </div>
-      <div class="control">
-        <label>Drawing Progress</label>
-        <span id="drawingProgressField"></span>
-      </div>
-      <div class="control">
-        <progress max="100" value="1" id="drawingProgressElement"></progress>
-      </div>
-      <div class="control">
-        <button id="saveAsImageButton">Save as Image</button>
-      </div>
-    </div>
-    <canvas width="400" height="400" id="displayCanvas"></canvas>
+    </main>
 
     <footer>
       Page by <a href="https://github.com/iwanharyatno">Iwan Haryatno</a>
